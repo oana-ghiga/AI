@@ -8,8 +8,12 @@
 #     print()
 
 # Representation of a State
+#0 can be anywhere for the final state as long as the rest of the numbers are in order so we have 9 possible final states
+
 def is_final_state(state):
-    return state == [1, 2, 3, 4, 5, 6, 7, 8, 0]
+    return state in  [[1, 2, 3, 4, 5, 6, 7, 8, 0], [1, 2, 3, 4, 0, 5, 6, 7, 8], [1, 2, 3, 0, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                      [1, 0,2, 3, 4, 5, 6, 7, 8], [1, 2, 0, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 0, 6, 7, 8], [1, 2, 3, 4, 5, 6, 0, 7, 8],
+                      [1, 2, 3, 4, 5, 6, 7, 0, 8]]
 
 
 # print(is_final_state([1, 2, 3, 4, 5, 6, 7, 8, 0]))
@@ -26,7 +30,32 @@ def initialize_puzzle(initial_state):
 def can_move(empty_index, target_index, last_moved_index):
     adjacent_indices = [[1, 3], [0, 2, 4], [1, 5], [0, 4, 6], [1, 3, 5, 7], [2, 4, 8], [3, 7], [4, 6, 8], [5, 7]]
     return target_index in adjacent_indices[empty_index] and target_index != last_moved_index
-
+# For Tile at Index 0 (Top Left Corner):
+# Can Move To: Index 1 (Right) and Index 3 (Down)
+#
+# For Tile at Index 1 (Top Middle):
+# Can Move To: Index 0 (Left), Index 2 (Right), and Index 4 (Down)
+#
+# For Tile at Index 2 (Top Right Corner):
+# Can Move To: Index 1 (Left) and Index 5 (Down)
+#
+# For Tile at Index 3 (Middle Left):
+# Can Move To: Index 0 (Up), Index 4 (Right), and Index 6 (Down)
+#
+# For Tile at Index 4 (Center):
+# Can Move To: Index 1 (Up), Index 3 (Left), Index 5 (Right), and Index 7 (Down)
+#
+# For Tile at Index 5 (Middle Right):
+# Can Move To: Index 2 (Up), Index 4 (Left), and Index 8 (Down)
+#
+# For Tile at Index 6 (Bottom Left Corner):
+# Can Move To: Index 3 (Up) and Index 7 (Right)
+#
+# For Tile at Index 7 (Bottom Middle):
+# Can Move To: Index 4 (Up), Index 6 (Left), and Index 8 (Right)
+#
+# For Tile at Index 8 (Bottom Right Corner):
+# Can Move To: Index 5 (Up) and Index 7 (Left)
 
 def move(state, empty_index, target_index):
     state[empty_index], state[target_index] = state[target_index], state[empty_index]
@@ -34,7 +63,7 @@ def move(state, empty_index, target_index):
 
 
 ####3####
-# Iterative Deepening Depth-First Search (IDDFS) ...stackoverflow comes to aid
+# Iterative Deepening Depth-First Search (IDDFS)..................................................................................................stackoverflow comes to aid
 def depth_limited_search(state, depth, max_depth, last_moved_index, state_dict=None):
     if depth > max_depth:
         return None, [], -1, state_dict
@@ -43,6 +72,8 @@ def depth_limited_search(state, depth, max_depth, last_moved_index, state_dict=N
     empty_index = state.index(0)
     for target_index in range(9):
         if can_move(empty_index, target_index, last_moved_index):
+            #chaning the last moved index to the current target index
+            last_moved_index = target_index
             new_state, _ = move(state.copy(), empty_index, target_index)
             if tuple(new_state) not in state_dict:
                 state_dict[tuple(new_state)] = tuple(state)
