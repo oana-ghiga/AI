@@ -8,6 +8,7 @@
 #     print()
 import heapq
 import math
+import time
 
 
 # Representation of a State 0 can be anywhere for the final state as long as the rest of the numbers are in order so
@@ -201,3 +202,68 @@ def print_greedy():
 
 
 print_greedy();
+
+###6###
+def run_all(instances):
+    for idx, instance in enumerate(instances, start=1):
+        print(f"Instance {idx}: {instance}")
+        # IDDFS
+        start_time = time.time() # time.time() returns the current time in seconds since the epoch as a floating point number
+        iddfs_solution, iddfs_moves, iddfs_depth = iddfs(instance.copy()) #we take the solution, moves and depth from the iddfs function and put them in the variables in the copy of the solution created at 5
+        iddfs_time = time.time() - start_time
+
+        print("###IDDFS###")
+        if iddfs_solution:
+            print(f"Solution: {iddfs_solution}")
+            print(f"Moves: {iddfs_moves}")
+            print(f"Depth: {iddfs_depth}")
+            print(f"Execution Time: {iddfs_time:.6f} seconds")
+        else:
+            print("No solution found.")
+
+        # Greedy with Hamming Heuristic
+        start_time = time.time()
+        hamming_solution = greedy_search(instance.copy(), hamming_distance)
+        hamming_time = time.time() - start_time
+
+        print("###Greedy with Hamming Heuristic###")
+        if hamming_solution:
+            print(f"Solution: {hamming_solution}")
+            print(f"Moves: {len(hamming_solution)-1}")
+            print(f"Execution Time: {hamming_time:.6f} seconds")
+        else:
+            print("No solution found.")
+
+        # Greedy with Diagonal Heuristic
+        start_time = time.time()
+        diagonal_solution = greedy_search(instance.copy(), diagonal_distance)
+        diagonal_time = time.time() - start_time
+
+        print("###Greedy with Diagonal Heuristic###")
+        if diagonal_solution:
+            print(f"Solution: {diagonal_solution}")
+            print(f"Moves: {len(diagonal_solution)-1}")
+            print(f"Execution Time: {diagonal_time:.6f} seconds")
+        else:
+            print("No solution found.")
+
+        # Greedy with Manhattan Heuristic
+        start_time = time.time()
+        manhattan_solution = greedy_search(instance.copy(), manhattan_distance)
+        manhattan_time = time.time() - start_time
+
+        print("###Greedy with Manhattan Heuristic###")
+        if manhattan_solution:
+            print(f"Solution: {manhattan_solution}")
+            print(f"Moves: {len(manhattan_solution)-1}")
+            print(f"Execution Time: {manhattan_time:.6f} seconds")
+        else:
+            print("No solution found.")
+
+        print("--------------")
+
+# Define your instances here
+instances = [[8, 6, 7, 2, 5, 4, 0, 3, 1], [2, 5, 3, 1, 0, 6, 4, 7, 8], [2, 7, 5, 0, 8, 4, 3, 1, 6]]
+
+# Run all 4 strategies for the instances
+run_all(instances)
