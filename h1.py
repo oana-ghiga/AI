@@ -6,7 +6,6 @@
 #     for j in range(3):
 #         print(matrix[i][j],end=" ")
 #     print()
-import heapq
 import math
 import time
 
@@ -71,7 +70,7 @@ def move(state, empty_index, target_index):
 
 
 ####3####
-# Iterative Deepening Depth-First Search (IDDFS)....stackoverflow comes to aid
+# Iterative Deepening Depth-First Search (IDDFS)
 def depth_limited_search(state, depth, max_depth, last_moved_index, state_dict=None):
     if depth > max_depth:
         return None, [], -1, state_dict
@@ -107,6 +106,7 @@ def iddfs(initial_state):
         max_depth += 1
 
 
+####5####
 def hamming_distance(state):
     return len([i for i in range(len(state)) if state[i] != 0 and state[i] != i + 1])
 
@@ -120,6 +120,7 @@ def diagonal_distance(state):
             dy = abs(i % 3 - goal_state.index(val) % 3)
             distance += math.sqrt(2) * min(dx, dy) + abs(dx - dy)
     return distance
+
 
 # def diagonal_distance(state): goal_state = [1, 2, 3, 4, 5, 6, 7, 8, 0] return sum(math.sqrt(2) * min(abs(i // 3 -
 # goal_state.index(val) // 3), abs(i % 3 - goal_state.index(val) % 3)) + abs(abs(i // 3 - goal_state.index(val) // 3)
@@ -201,15 +202,19 @@ def print_greedy():
             print(f"No solution found for Initial State: {instance}")
 
 
-print_greedy();
+print_greedy()
+
 
 ###6###
 def run_all(instances):
     for idx, instance in enumerate(instances, start=1):
         print(f"Instance {idx}: {instance}")
         # IDDFS
-        start_time = time.time() # time.time() returns the current time in seconds since the epoch as a floating point number
-        iddfs_solution, iddfs_moves, iddfs_depth = iddfs(instance.copy()) #we take the solution, moves and depth from the iddfs function and put them in the variables in the copy of the solution created at 5
+        start_time = time.time()  # time.time() returns the current time in seconds since the epoch as a floating
+        # point number
+        iddfs_solution, iddfs_moves, iddfs_depth = iddfs(
+            instance.copy())  # we take the solution, moves and depth from the iddfs function and put them in the
+        # variables in the copy of the solution created at 5
         iddfs_time = time.time() - start_time
 
         print("###IDDFS###")
@@ -229,7 +234,7 @@ def run_all(instances):
         print("###Greedy with Hamming Heuristic###")
         if hamming_solution:
             print(f"Solution: {hamming_solution}")
-            print(f"Moves: {len(hamming_solution)-1}")
+            print(f"Moves: {len(hamming_solution) - 1}")
             print(f"Execution Time: {hamming_time:.6f} seconds")
         else:
             print("No solution found.")
@@ -242,7 +247,7 @@ def run_all(instances):
         print("###Greedy with Diagonal Heuristic###")
         if diagonal_solution:
             print(f"Solution: {diagonal_solution}")
-            print(f"Moves: {len(diagonal_solution)-1}")
+            print(f"Moves: {len(diagonal_solution) - 1}")
             print(f"Execution Time: {diagonal_time:.6f} seconds")
         else:
             print("No solution found.")
@@ -255,12 +260,13 @@ def run_all(instances):
         print("###Greedy with Manhattan Heuristic###")
         if manhattan_solution:
             print(f"Solution: {manhattan_solution}")
-            print(f"Moves: {len(manhattan_solution)-1}")
+            print(f"Moves: {len(manhattan_solution) - 1}")
             print(f"Execution Time: {manhattan_time:.6f} seconds")
         else:
             print("No solution found.")
 
         print("--------------")
+
 
 # Define your instances here
 instances = [[8, 6, 7, 2, 5, 4, 0, 3, 1], [2, 5, 3, 1, 0, 6, 4, 7, 8], [2, 7, 5, 0, 8, 4, 3, 1, 6]]

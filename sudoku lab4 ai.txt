@@ -1,0 +1,18 @@
+pentru sudoku, pt fiecare state vom avea o variabila k care ne spune daca poz din spate au fost vizitate, incat bkt sa fie mai usor 
+bkt -> sa nu fie dfs, nu trebuie sa avem algoritm de vizitare vecini : avem o ordine de vizitare a variabilelor 
+
+in algoritmul BKT(assignment), assignment va avea forma { var1 : val1, var2 : val2 }
+
+sol completa : am toate variabilele -> este si consistenta (verifica niste constrangeri de ex x11 != x12, x12 != x22, etc.)
+
+
+
+
+forward checking: 
+
+domain pt valori in mod recursiv : de ex x11 = {1..9}
+si apoi val x11 devine x11 =  {1} -> se updateaza x12 = {1..9} in x12 = {2..9}
+daca o val x85 de ex are domeniul {} -> nu exista sol valida
+
+
+MRV : vom lua valori cu domeniul cel mai mic incat sa optimizam -> vom gasi "infundaturi" mai repede
