@@ -6,6 +6,7 @@
 #     for j in range(3):
 #         print(matrix[i][j],end=" ")
 #     print()
+import heapq
 import math
 import time
 
@@ -79,7 +80,7 @@ def depth_limited_search(state, depth, max_depth, last_moved_index, state_dict=N
     empty_index = state.index(0)
     for target_index in range(9):
         if can_move(empty_index, target_index, last_moved_index):
-            # chaning the last moved index to the current target index
+            # changing the last moved index to the current target index
             last_moved_index = target_index
             new_state, _ = move(state.copy(), empty_index, target_index)
             if tuple(new_state) not in state_dict:
@@ -152,15 +153,14 @@ class PriorityQueue:
 
 def greedy_search(initial_state, heuristic):
     state_dict = {tuple(initial_state): None}
-    priority_queue = PriorityQueue()
-    priority_queue.put(initial_state, heuristic(initial_state))
+    priority_queue = [(heuristic(initial_state), initial_state)]
     last_moved_index = None
+    move_sequence = []
 
-    while not priority_queue.empty():
-        state, _ = priority_queue.get()
+    while priority_queue:
+        _, state = heapq.heappop(priority_queue)
         if is_final_state(state):
-            return state
-
+            return state, move_sequence
         empty_index = state.index(0)
         for target_index in range(9):
             if can_move(empty_index, target_index, last_moved_index):
@@ -168,7 +168,10 @@ def greedy_search(initial_state, heuristic):
                 new_state, _ = move(state.copy(), empty_index, target_index)
                 if tuple(new_state) not in state_dict:
                     state_dict[tuple(new_state)] = tuple(state)
-                    priority_queue.put(new_state, heuristic(new_state))
+                    heapq.heappush(priority_queue, (heuristic(new_state), new_state))
+                    move_sequence.append(target_index)
+
+    return None, []  # Return None if no solution is found
 
 
 ####4####
@@ -182,7 +185,7 @@ def print_iddfs():
         if solution is not None:
             print(f"Initial State: {instance}")
             print(f"Solution: {solution}")
-            print(f"Moves: {moves}")
+            # print(f"Moves: {moves}")
             print(f"Depth: {depth}")
             print("--------------")
         else:
@@ -202,7 +205,7 @@ def print_greedy():
             print(f"No solution found for Initial State: {instance}")
 
 
-print_greedy()
+# print_greedy()
 
 
 ###6###
@@ -234,7 +237,6 @@ def run_all(instances):
         print("###Greedy with Hamming Heuristic###")
         if hamming_solution:
             print(f"Solution: {hamming_solution}")
-            print(f"Moves: {len(hamming_solution) - 1}")
             print(f"Execution Time: {hamming_time:.6f} seconds")
         else:
             print("No solution found.")
@@ -247,7 +249,6 @@ def run_all(instances):
         print("###Greedy with Diagonal Heuristic###")
         if diagonal_solution:
             print(f"Solution: {diagonal_solution}")
-            print(f"Moves: {len(diagonal_solution) - 1}")
             print(f"Execution Time: {diagonal_time:.6f} seconds")
         else:
             print("No solution found.")
@@ -260,7 +261,6 @@ def run_all(instances):
         print("###Greedy with Manhattan Heuristic###")
         if manhattan_solution:
             print(f"Solution: {manhattan_solution}")
-            print(f"Moves: {len(manhattan_solution) - 1}")
             print(f"Execution Time: {manhattan_time:.6f} seconds")
         else:
             print("No solution found.")
