@@ -10,7 +10,6 @@ puzzle_with_flag = [
     [(0, 0), (0, 0), (0, 1), (0, 0), (9, 1), (7, 1), (0, 0), (3, 1), (0, 0)]
 ]
 
-
 def print_puzzle(puzzle):
     for i in range(9):
         if i % 3 == 0 and i != 0:
@@ -62,11 +61,62 @@ for i in range(9):
     for j in range(9):
         add_constraint((i,j))
 
-
-
 domains = define_domains(puzzle_with_flag)
 
 for var in variables:
     print(var, domains[var])
 
 print_puzzle(puzzle_with_flag)
+
+#2 backtracking with forward checking
+def backtracking_with_forward_checking(puzzle, domains, constraints):#puzzle is a list of tuples (val, flag) where val is the value of the cell and flag is 1 if the cell is given and 0 otherwise
+    if (isComplete(puzzle)):
+        return puzzle
+    var = next_unassigned_variable(puzzle) #var is a tuple of positions (i,j) for the value of cell(i,j) next_unassigned_variable returns the first cell with value 0
+    original_domain = domains.copy() #original_domain is a copy of the domains dictionary before any changes are made
+    for val in domains[var]:
+        if isConsistent(puzzle, var, val, constraints):
+            puzzle[var[0]][var[1]] = (val, 1) #puzzle is updated with the new value for cell(i,j)
+            domains = update_domains(puzzle, domains, constraints, var, val) #domains is updated with the new domains for the variables that are constrained by cell(i,j)
+            result = backtracking_with_forward_checking(puzzle, domains, constraints) #result is the solution of the puzzle
+            if result != None:
+                return result
+            puzzle[var[0]][var[1]] = (0, 0) #if the result is None, the value of cell(i,j) is reset to 0
+            domains = original_domain.copy() #domains is reset to the original dictionary
+    return None
+isComplete = lambda puzzle: all(puzzle[i][j][0] != 0 for i in range(9) for j in range(9)) #puzzle is complete if all the cells have a value different from 0
+
+next_unassigned_variable = lambda puzzle: min((i, j) for i in range(9) for j in range(9) if puzzle[i][j][0] == 0) #next_unassigned_variable returns the first cell with value 0
+def isConsistent(puzzle, var, val, constraints): #puzzle is a list of tuples (val, flag) where val is the value of the cell and flag is 1 if the cell is given and 0 otherwise
+    for item in constraints[var]:
+        if item == "grey":
+            # Handle "grey" constraint
+            if var[0] % 2 == 0 and var[1] % 2 == 0 and val % 2 != 0: #if the cell is grey and the value is odd, the constraint is not satisfied
+                return False
+        else:
+            i, j = item
+            if puzzle[i][j][0] == val:
+                return False
+    return True
+
+def update_domains(puzzle, domains, constraints, var, val): # update_domains returns the new domains for the variables that are constrained by cell(i,j)
+    for item in constraints[var]:
+        if item == "grey":
+            # Handle "grey" constraint
+            if var[0] % 2 == 0 and var[1] % 2 == 0 and val % 2 != 0:
+                continue  # Skip this iteration for "grey" constraint
+        else:
+            i, j = item
+            if puzzle[i][j][0] == 0:
+                if val in domains[(i, j)]:
+                    domains[(i, j)] = tuple(x for x in domains[(i, j)] if x != val) #the value of cell(i,j) is removed from the domain of the variables that are constrained by cell(i,j)
+    return domains
+solution = backtracking_with_forward_checking(puzzle_with_flag, domains, constraints)
+
+if solution is not None:
+    print("Solution found:")
+    print_puzzle(solution)
+else:
+    print("No solution found.")
+
+
