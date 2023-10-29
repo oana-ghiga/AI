@@ -25,9 +25,8 @@ def print_puzzle(puzzle):
 
 # print_puzzle(puzzle_with_flag)
 
-# defining variables with coords as tuple
-# aici variabila e declarata ca un tuplu de pozitii pentru valoarea cell(i,j) in loc de valoarea acesteia
-# valoarea poate foarte usor sa fie accesata folosind val, flag = puzzle[val[0]][val[1]], unde val are forma (i,j) si val[0] = i
+# aici variabila var e declarata ca un tuplu de pozitii pentru valoarea cell(i,j) in loc de valoarea acesteia
+# valoarea val poate foarte usor sa fie accesata folosind val, flag = puzzle[var[0]][var[1]], unde var are forma (i,j) si val[0] = i
 
 variables = [(i, j) for i in range(9) for j in range(9)]
 
