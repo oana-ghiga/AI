@@ -160,7 +160,7 @@ def update_domains(puzzle, domains, constraints, var, val): # update_domains ret
             if var[0] % 2 == 0 and var[1] % 2 == 0 and val % 2 != 0:
                 continue  # Skip this iteration for "grey" constraint
         else:
-            i, j = item
+            i, j = item # i, j are the positions of the variables that are constrained by cell(i,j)
             if puzzle[i][j][0] == 0:
                 if val in domains[(i, j)]:
                     domains[(i, j)] = tuple(x for x in domains[(i, j)] if x != val) #the value of cell(i,j) is removed from the domain of the variables that are constrained by cell(i,j)
@@ -168,9 +168,80 @@ def update_domains(puzzle, domains, constraints, var, val): # update_domains ret
 solution = backtracking_with_forward_checking(puzzle_with_flag, domains, constraints)
 
 if solution is not None:
-    print("Solution found:")
+    print("2.Solution found:")
     print_puzzle(solution)
 else:
     print("No solution found.")
 
 
+#3 backtracking with forward checking and mrv heuristic
+def next_unassigned_variable_MRV(assignment, domains):
+    unassigned_vars = [var for var in variables if assignment[var[0]][var[1]][0] == 0]
+    return min(unassigned_vars, key=lambda var: len(domains[var]))
+
+def consistent(assignment, var, value):
+    row, col = var
+
+    for i in range(9):
+        if assignment[row][i][0] == value or assignment[i][col][0] == value:
+            return False
+
+    box_start_row, box_start_col = 3 * (row // 3), 3 * (col // 3)
+    for i in range(box_start_row, box_start_row + 3):
+        for j in range(box_start_col, box_start_col + 3):
+            if assignment[i][j][0] == value:
+                return False
+
+    if constraints[var] == "grey" and value % 2 != 0:
+        return False
+
+    return True
+
+def update_domains_FC(domains, var, value):
+    new_domains = domains.copy()
+
+    for item in constraints[var]:
+        if item == "grey":
+            if var[0] % 2 == 0 and var[1] % 2 == 0 and value % 2 != 0:
+                continue
+        else:
+            i, j = item
+            if new_domains[(i, j)] and value in new_domains[(i, j)]:
+                new_domains[(i, j)] = tuple(x for x in new_domains[(i, j)] if x != value)
+
+    return new_domains
+
+def BKT_with_FC_MRV(assignment, domains):
+    if isComplete(assignment):
+        return assignment
+
+    var = next_unassigned_variable_MRV(assignment, domains)
+
+    for value in domains[var]:
+        if consistent(assignment, var, value):
+            new_assignment = [row[:] for row in assignment]  # Create a new copy of the assignment list
+            new_assignment[var[0]][var[1]] = (value, 1)
+            new_domains = update_domains_FC(domains, var, value)
+
+            empty_domain = False
+            for v in variables:
+                if assignment[v[0]][v[1]][0] == 0 and not new_domains[v]:
+                    empty_domain = True
+                    break
+
+            if not empty_domain:
+                result = BKT_with_FC_MRV(new_assignment, new_domains)
+                if result is not None:
+                    return result
+
+    return None
+
+# Call the function with initial assignment and domains
+initial_assignment = [row[:] for row in puzzle_with_flag]
+solution_mrv = BKT_with_FC_MRV(initial_assignment, domains)
+
+if solution_mrv is not None:
+    print("3.Solution found with MRV:")
+    print_puzzle(solution_mrv)
+else:
+    print("No solution found with MRV.")
