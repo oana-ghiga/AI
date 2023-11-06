@@ -1,4 +1,5 @@
 from colorama import Fore, Style
+from itertools import combinations
 
 class NumberScrabble:
     def __init__(self):
@@ -7,7 +8,17 @@ class NumberScrabble:
         self.computer_picked = set()
 
     def is_final(self):
-        return len(self.player_picked) + len(self.computer_picked) == 9 or sum(self.player_picked) == 15 or sum(self.computer_picked) == 15
+        # Check if any player's or computer's 3 numbers add up to 15
+        return (self.check_winning_combination(self.player_picked) or
+                self.check_winning_combination(self.computer_picked) or
+                len(self.player_picked) + len(self.computer_picked) == 9)
+
+    def check_winning_combination(self, picked_numbers):
+        # Check all combinations of 3 picked numbers
+        for combination in combinations(picked_numbers, 3):
+            if sum(combination) == 15:
+                return True
+        return False
 
     def transition(self, number, player):
         if 1 <= number <= 9 and number not in self.player_picked and number not in self.computer_picked:
@@ -90,12 +101,9 @@ class NumberScrabble:
             self.computer_move()
         self.print_board()
 
-        player_sum = sum(self.player_picked)
-        computer_sum = sum(self.computer_picked)
-
-        if player_sum == 15 and computer_sum != 15:
+        if self.check_winning_combination(self.player_picked):
             print("You win!")
-        elif player_sum != 15 and computer_sum == 15:
+        elif self.check_winning_combination(self.computer_picked):
             print("Computer wins!")
         else:
             print("It's a draw!")
