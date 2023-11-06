@@ -7,7 +7,7 @@ class NumberScrabble:
         self.computer_picked = set()
 
     def is_final(self):
-        return len(self.player_picked) + len(self.computer_picked) == 9
+        return len(self.player_picked) + len(self.computer_picked) == 9 or sum(self.player_picked) == 15 or sum(self.computer_picked) == 15
 
     def transition(self, number, player):
         if 1 <= number <= 9 and number not in self.player_picked and number not in self.computer_picked:
@@ -89,12 +89,17 @@ class NumberScrabble:
             self.print_board()
             self.computer_move()
         self.print_board()
-        if self.heuristic(self.computer_picked) > self.heuristic(self.player_picked):
-            print("Computer wins!")
-        elif self.heuristic(self.computer_picked) < self.heuristic(self.player_picked):
+
+        player_sum = sum(self.player_picked)
+        computer_sum = sum(self.computer_picked)
+
+        if player_sum == 15 and computer_sum != 15:
             print("You win!")
+        elif player_sum != 15 and computer_sum == 15:
+            print("Computer wins!")
         else:
             print("It's a draw!")
+
         print("Game Over!")
 
 game = NumberScrabble()
