@@ -1,6 +1,15 @@
 from colorama import Fore, Style
 from itertools import combinations
 
+
+def check_winning_combination(picked_numbers):
+    # Check all combinations of 3 picked numbers
+    for combination in combinations(picked_numbers, 3):
+        if sum(combination) == 15:
+            return True
+    return False
+
+
 class NumberScrabble:
     def __init__(self):
         self.state = [[2, 7, 6], [9, 5, 1], [4, 3, 8]]
@@ -9,16 +18,9 @@ class NumberScrabble:
 
     def is_final(self):
         # Check if any player's or computer's 3 numbers add up to 15
-        return (self.check_winning_combination(self.player_picked) or
-                self.check_winning_combination(self.computer_picked) or
+        return (check_winning_combination(self.player_picked) or
+                check_winning_combination(self.computer_picked) or
                 len(self.player_picked) + len(self.computer_picked) == 9)
-
-    def check_winning_combination(self, picked_numbers):
-        # Check all combinations of 3 picked numbers
-        for combination in combinations(picked_numbers, 3):
-            if sum(combination) == 15:
-                return True
-        return False
 
     def transition(self, number, player):
         if 1 <= number <= 9 and number not in self.player_picked and number not in self.computer_picked:
@@ -61,32 +63,32 @@ class NumberScrabble:
 
     def minimax(self, depth, player):
         if self.is_final():
-            if self.check_winning_combination(self.computer_picked):
-                return [None, 1]  # computer takes the chicken dinner
-            elif self.check_winning_combination(self.player_picked):
-                return [None, -1]  # eu winner chicken dinner
+            if check_winning_combination(self.computer_picked):
+                return [None, 1]  # computer wins
+            elif check_winning_combination(self.player_picked):
+                return [None, -1]  # player wins
             else:
-                return [None, 0]  # remiza
+                return [None, 0]  # draw
+
+        if depth < 0:
+            return [None, 0]  # neutral score
+
+        if depth == 0:
+            return [None, self.heuristic(self.computer_picked)]
 
         if player == 'computer':
             best = [-1, float('-inf')]
         else:
             best = [-1, float('inf')]
 
-        if depth < 0:
-            return [None, 0]
-        elif depth == 0:
-            return [None, self.heuristic(self.computer_picked)]
-
         for number in set(range(1, 10)) - self.player_picked - self.computer_picked:
-            # simulating moves
             if player == 'computer':
                 self.computer_picked.add(number)
             else:
                 self.player_picked.add(number)
 
             score = self.minimax(depth - 1, 'player' if player == 'computer' else 'computer')[1]
-            # minimax -> [best move, best score]
+
             if player == 'computer':
                 self.computer_picked.remove(number)
             else:
@@ -120,7 +122,7 @@ class NumberScrabble:
                 print("Invalid input. Please enter a number.")
 
     def heuristic(self, player_picked):
-        magic_square = [[2, 7, 6], [9, 5, 1], [4, 3, 8]]
+        magic_square = [[2, 7, 6], [9, 5, 1], [4, 3, 8], [2, 9, 4], [7, 5, 3], [1, 8, 4], [2, 5, 8], [6, 5, 4]]
         final_set = {1, 2, 3, 4, 5, 6, 7, 8, 9}
         opponent_picked = self.computer_picked if player_picked == self.player_picked else self.player_picked
         avl_nums = final_set - (player_picked | opponent_picked)
@@ -149,14 +151,15 @@ class NumberScrabble:
             self.computer_move()
         self.print_board()
 
-        if self.check_winning_combination(self.player_picked):
+        if check_winning_combination(self.player_picked):
             print("You win!")
-        elif self.check_winning_combination(self.computer_picked):
+        elif check_winning_combination(self.computer_picked):
             print("Computer wins!")
         else:
             print("It's a draw!")
 
         print("Game Over!")
+
 
 game = NumberScrabble()
 game.play()
