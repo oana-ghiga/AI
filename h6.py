@@ -109,6 +109,7 @@ with open('results.txt', 'w') as f:
     for i in range(len(test_labels)):
         f.write(f'exemplul {i+1}: clasa reala = {test_labels[i]}, clasa prezisa = {predicted[i]}\n')
 
+
 # Manual forward propagation
 hidden_weights = np.random.randn(input_size, hidden_size)
 hidden_bias = np.zeros(hidden_size)
