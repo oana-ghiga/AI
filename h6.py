@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import neurolab as nl
 import numpy as np
 
 # citirea datelor
@@ -19,6 +18,7 @@ test_features = torch.tensor(features[int(len(features) * 0.8):], dtype=torch.fl
 train_labels = torch.tensor(labels[:int(len(labels) * 0.8)] - 1, dtype=torch.long)
 test_labels = torch.tensor(labels[int(len(labels) * 0.8):] - 1, dtype=torch.long)
 
+
 # definirea modelului
 class NeuralNet(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
@@ -30,11 +30,12 @@ class NeuralNet(nn.Module):
 
     # forward propagation
     def forward(self, x):
-        x = self.hidden(x) #only one hidden layer
-        x = self.relu(x) #reLU for input
+        x = self.hidden(x)  # only one hidden layer
+        x = self.relu(x)  # reLU activation for input
         x = self.output(x)
-        x = self.softmax(x) #softmax for output
+        x = self.softmax(x)  # softmax activation for output
         return x
+
 
 # initializarea parametrilor
 input_size = 7
@@ -43,13 +44,12 @@ output_size = 3
 learning_rate = 0.01
 epochs = 100
 
-
-# crearea unei instante a modelului + initializarea parametrilor
+# crearea unei instante a modelului
 model = NeuralNet(input_size, hidden_size, output_size)
 
 # definirea functiei de pierdere si a optimizatorului
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(), learning_rate)
+optimizer = optim.SGD(model.parameters(), learning_rate) #Stochastic Gradient Descent
 
 # antrenarea modelului
 for epoch in range(epochs):
@@ -60,16 +60,15 @@ for epoch in range(epochs):
     # backpropagation si optimizare
     optimizer.zero_grad()
     loss.backward()
-    optimizer.step()
-
+    optimizer.step() #actualizam parametrii aici
 
 # testarea modelului
 test_output = model(test_features)
 _, predicted = torch.max(test_output, 1)
-accuracy = (predicted == test_labels).sum().item() / len(test_labels)
+accuracy = (predicted == test_labels).float().mean().item() * 100
 print('accuracy:', accuracy)
 
 # 80% training 20% testing
 with open('results.txt', 'w') as f:
     for i in range(len(test_labels)):
-        f.write(f'exemplul {i+1}: clasa reala = {test_labels[i]}, clasa prezisa = {predicted[i]}\n')
+        f.write(f'exemplul {i + 1}: clasa reala = {test_labels[i]}, clasa prezisa = {predicted[i]}\n')
