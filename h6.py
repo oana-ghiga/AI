@@ -85,7 +85,6 @@ plt.legend()
 plt.show()
 
 
-
 # testarea modelului
 test_output = model(test_features)
 _, predicted = torch.max(test_output, 1)
@@ -110,45 +109,46 @@ with open('results.txt', 'w') as f:
     for i in range(len(test_labels)):
         f.write(f'exemplul {i+1}: clasa reala = {test_labels[i]}, clasa prezisa = {predicted[i]}\n')
 
-
 # Manual forward propagation
-hidden_weights = torch.randn(input_size, hidden_size, requires_grad=True)
-hidden_bias = torch.zeros(hidden_size, requires_grad=True)
-output_weights = torch.randn(hidden_size, output_size, requires_grad=True)
-output_bias = torch.zeros(output_size, requires_grad=True)
+hidden_weights = np.random.randn(input_size, hidden_size)
+hidden_bias = np.zeros(hidden_size)
+output_weights = np.random.randn(hidden_size, output_size)
+output_bias = np.zeros(output_size)
 
 # Forward pass for the hidden layer
-hidden_output = test_features.mm(hidden_weights) + hidden_bias
-hidden_activation = hidden_output.clamp(min=0)  # ReLU activation
+hidden_output = np.dot(test_features, hidden_weights) + hidden_bias
+hidden_activation = np.maximum(hidden_output, 0)  # ReLU activation
 
 # Forward pass for the output layer
-output = hidden_activation.mm(output_weights) + output_bias
-output_probs = output.softmax(dim=1)  # Softmax for probabilities
+output = np.dot(hidden_activation, output_weights) + output_bias
+exp_scores = np.exp(output)
+output_probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)  # Softmax for probabilities
 
 # Manual backpropagation
-loss = -torch.log(output_probs[range(len(test_labels)), test_labels]).mean()  # Cross-entropy loss
+probs = output_probs[np.arange(len(test_labels)), test_labels]
+loss = -np.log(probs).mean()  # Cross-entropy loss
 
 # Backpropagation for the output layer
-grad_output = output_probs.clone()
-grad_output[range(len(test_labels)), test_labels] -= 1
+grad_output = output_probs.copy()
+grad_output[np.arange(len(test_labels)), test_labels] -= 1
 grad_output /= len(test_labels)
 
-output_weights.grad = hidden_activation.t().mm(grad_output)
-output_bias.grad = grad_output.sum(dim=0)
+output_weights_grad = np.dot(hidden_activation.T, grad_output)
+output_bias_grad = np.sum(grad_output, axis=0)
 
 # Backpropagation for the hidden layer
-grad_hidden = grad_output.mm(output_weights.t())
+grad_hidden = np.dot(grad_output, output_weights.T)
 grad_hidden[hidden_output <= 0] = 0  # Derivative of ReLU
-hidden_weights.grad = test_features.t().mm(grad_hidden)
-hidden_bias.grad = grad_hidden.sum(dim=0)
+
+hidden_weights_grad = np.dot(test_features.T, grad_hidden)
+hidden_bias_grad = np.sum(grad_hidden, axis=0)
 
 # Update weights manually
 learning_rate = 0.01
-with torch.no_grad():
-    hidden_weights -= learning_rate * hidden_weights.grad
-    hidden_bias -= learning_rate * hidden_bias.grad
-    output_weights -= learning_rate * output_weights.grad
-    output_bias -= learning_rate * output_bias.grad
+hidden_weights -= learning_rate * hidden_weights_grad
+hidden_bias -= learning_rate * hidden_bias_grad
+output_weights -= learning_rate * output_weights_grad
+output_bias -= learning_rate * output_bias_grad
 
 # Print updated weights for demonstration
 print("Updated Weights - Hidden Layer:")
