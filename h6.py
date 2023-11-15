@@ -93,7 +93,7 @@ _, predicted = torch.max(test_output, 1)
 accuracy = (predicted == test_labels).sum().item() / len(test_labels)
 print('accuracy:', accuracy)
 
-# Visualize misclassified points
+# misclassified points
 misclassified_indices = (predicted != test_labels).nonzero(as_tuple=True)[0]
 misclassified_features = test_features[misclassified_indices]
 misclassified_labels = test_labels[misclassified_indices]
@@ -118,12 +118,12 @@ output_bias = np.zeros(output_size)
 
 # Forward pass for the hidden layer
 hidden_output = np.dot(test_features, hidden_weights) + hidden_bias
-hidden_activation = np.maximum(hidden_output, 0)  # ReLU activation
+hidden_activation = np.maximum(hidden_output, 0)  # ReLU
 
 # Forward pass for the output layer
 output = np.dot(hidden_activation, output_weights) + output_bias
 exp_scores = np.exp(output)
-output_probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)  # Softmax for probabilities
+output_probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)  # Softmax
 
 # Manual backpropagation
 probs = output_probs[np.arange(len(test_labels)), test_labels]
@@ -139,7 +139,7 @@ output_bias_grad = np.sum(grad_output, axis=0)
 
 # Backpropagation for the hidden layer
 grad_hidden = np.dot(grad_output, output_weights.T)
-grad_hidden[hidden_output <= 0] = 0  # Derivative of ReLU
+grad_hidden[hidden_output <= 0] = 0
 
 hidden_weights_grad = np.dot(test_features.T, grad_hidden)
 hidden_bias_grad = np.sum(grad_hidden, axis=0)
